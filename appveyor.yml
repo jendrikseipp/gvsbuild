@@ -1,5 +1,8 @@
 clone_folder: C:\gtk-build\github\gvsbuild
 
+# Do not build feature branches that are already built as part of a pull request.
+skip_branch_with_pr: true
+
 matrix:
   fast_finish: true
 
@@ -19,12 +22,14 @@ environment:
     #  PYTHON: C:\Python36-x64\python.exe
 
 build_script:
-  - "%PYTHON% -m pip install -U wheel"
-  - "%PYTHON% build.py build --archives-download-dir=%DOWNLOAD_DIR% --platform=%PLATFORM% --vs-ver=%VS_VER% -k --enable-gi --py-wheel --python-ver 3.6 adwaita-icon-theme enchant gtk3 gtksourceview3 hicolor-icon-theme pygobject"
-  - "%PYTHON% -m pip install C:/gtk-build/gtk/Win32/release/python/pycairo-1.17.1-cp36-cp36m-win32.whl C:/gtk-build/gtk/Win32/release/python/PyGObject-3.28.3-cp36-cp36m-win32.whl"
+  - "%PYTHON% -m pip install -U pip wheel"
+  - "%PYTHON% build.py build --archives-download-dir=%DOWNLOAD_DIR% --platform=%PLATFORM% --vs-ver=%VS_VER% -k --enable-gi --py-wheel --python-ver 3.6 enchant gtk3 gtksourceview3 adwaita-icon-theme hicolor-icon-theme pygobject"
+  # Test stack.
+  - "%PYTHON% -m pip install C:/gtk-build/gtk/Win32/release/python/pycairo-1.19.1-cp36-cp36m-win32.whl C:/gtk-build/gtk/Win32/release/python/PyGObject-3.36.0-cp36-cp36m-win32.whl"
   - set PATH=%PATH%;C:/gtk-build\gtk\Win32\release\bin
   - "%PYTHON% -c \"import os; print(os.getenv('PATH'))\""
   - "%PYTHON% -c \"import gi; gi.require_version('Gtk', '3.0'); from gi.repository import Gtk\""
+  # Package files.
   - set PATH=%PATH%;C:\msys64\usr\bin
   - IF "%PLATFORM%"=="x86" tar.exe -zcf gvsbuild-vs%VS_VER%-%PLATFORM%.tar.gz -C /c/gtk-build/gtk/Win32 release
   #- IF "%PLATFORM%"=="x64" tar.exe -zcf gvsbuild-vs%VS_VER%-%PLATFORM%.tar.gz -C /c/gtk-build/gtk/x64 release
